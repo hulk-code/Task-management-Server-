@@ -65,7 +65,40 @@ async function run() {
       );
       res.send(result);
     });
+    app.put("/ongoing/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ongoing: true,
+        },
+      };
+      const result = await AddTaskCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
+   
 
+    app.put("/notongoing/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ongoing: false,
+        },
+      };
+      const result = await AddTaskCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
     app.put("/undonetask/:id", async (req, res) => {
       const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
