@@ -28,27 +28,86 @@ async function run() {
     const AddTaskCollection=client.db('TaskManagement').collection('Addtask')
 
 
-    app.post("/addtasks", async (req, res) => {
+    app.post("/addtask", async (req, res) => {
         const task = req.body;
         const result = await AddTaskCollection.insertOne(task);
-        // sendInitialEmail(task.email, task.task);
-        // scheduleFollowUpEmails(task._id, task.email, task.task);
+      
         res.send(result);
       });
 
-      app.get('/addtasks', async (req, res) => {
-        const result = await AddTaskCollection.find().toArray();
+      app.get('/addtask', async (req, res) => {
+        console.log(req.query.email);
+        let query={}
+        if (req.query?.email){
+          query={email: req.query.email}
+        }
+        const result = await AddTaskCollection.find(query).toArray();
         res.send(result);
     })
 
-      
+   
 
-      app.get('/addtasks/:email' ,  async (req , res) =>{
-        const email=req.params.email
-        const query={email :email}
-       const result = await AddTaskCollection.findOne(query)
-     res.send(result);
-    })
+
+
+    app.put("/donetask/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          done: true,
+        },
+      };
+      const result = await AddTaskCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
+
+    app.put("/undonetask/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const option = { upsert: true };
+      const updateDoc = {
+        $set: {
+          done: false,
+        },
+      };
+      const result = await AddTaskCollection.updateOne(
+        filter,
+        updateDoc,
+        option
+      );
+      res.send(result);
+    });
+
+    app.put("/edittask/:id", async (req, res) => {
+      const id = req.params.id;
+
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+
+      const updateDoc = {
+        $set: {
+          task: req.body.task,
+        },
+      };
+      const result = await AddTaskCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
+    app.delete("/tasks/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await AddTaskCollection.deleteOne(query);
+      res.send(result);
+    });
 
       
     // Send a ping to confirm a successful connection
